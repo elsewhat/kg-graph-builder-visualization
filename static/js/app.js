@@ -1,4 +1,4 @@
-class KnowledgeGraphBuilder {    constructor() {
+class KnowledgeGraphBuilder {constructor() {
         this.cy = null;
         this.graphData = null;
         this.currentStep = 0;
@@ -17,12 +17,12 @@ class KnowledgeGraphBuilder {    constructor() {
         
         this.init();
     }
-    
-    async init() {
+      async init() {
         await this.loadGraphData();
         this.initializeCytoscape();
         this.setupEventListeners();
         this.updateStats();
+        this.checkAvailableLayouts();
     }
     
     async loadGraphData() {
@@ -786,12 +786,70 @@ class KnowledgeGraphBuilder {    constructor() {
         setTimeout(() => {
             this.cy.zoom(zoomLevel);
         }, 100);
-    }
-      updateStats() {
+    }    updateStats() {
         document.getElementById('current-step').textContent = this.currentStep;
         document.getElementById('node-count').textContent = this.elements.nodes.length;
         document.getElementById('edge-count').textContent = this.elements.edges.length;
         document.getElementById('concept-count').textContent = this.elements.ontology.length;
+    }    checkAvailableLayouts() {
+        const layoutSelect = document.getElementById('layout-type');
+        if (!layoutSelect) {
+            console.warn('Layout dropdown not found');
+            return;
+        }
+        
+        const options = layoutSelect.querySelectorAll('option');
+        
+        // Check which layouts are available by testing if they're registered
+        const availableLayouts = new Set(['preset', 'random', 'grid', 'circle', 'concentric', 'breadthfirst', 'cose']);
+        
+        // Check for extended layouts by testing if we can create them
+        const extendedLayouts = ['cose-bilkent', 'fcose', 'cola'];
+        
+        extendedLayouts.forEach(layoutName => {
+            try {
+                // Test by creating a minimal layout instance
+                if (this.cy) {
+                    const testLayout = this.cy.layout({ 
+                        name: layoutName, 
+                        randomize: false, 
+                        animate: false,
+                        fit: false,
+                        stop: () => {} // prevent any actual execution
+                    });
+                    availableLayouts.add(layoutName);
+                    console.log(`✓ Layout '${layoutName}' is available`);
+                } else {
+                    // Fallback: test with a temporary cytoscape instance
+                    const tempCy = cytoscape({
+                        elements: [{ data: { id: 'test' } }],
+                        headless: true
+                    });
+                    const testLayout = tempCy.layout({ name: layoutName });
+                    tempCy.destroy();
+                    availableLayouts.add(layoutName);
+                    console.log(`✓ Layout '${layoutName}' is available (tested with temp instance)`);
+                }
+            } catch (e) {
+                console.log(`✗ Layout '${layoutName}' is NOT available:`, e.message);
+            }
+        });
+        
+        // Update dropdown options
+        options.forEach(option => {
+            const layoutName = option.value;
+            if (!availableLayouts.has(layoutName)) {
+                option.disabled = true;
+                option.textContent = option.textContent.replace(' (Not Available)', '') + ' (Not Available)';
+                option.style.color = '#999';
+            } else {
+                option.disabled = false;
+                option.textContent = option.textContent.replace(' (Not Available)', '');
+                option.style.color = '';
+            }
+        });
+        
+        console.log('Available layouts for dropdown:', Array.from(availableLayouts));
     }
     
     showLayoutControls() {
@@ -848,10 +906,8 @@ class KnowledgeGraphBuilder {    constructor() {
             fit: false,
             padding: padding,
             randomize: false
-        };
-        
-        // Add specific options for COSE layouts
-        if (layoutType === 'cose' || layoutType === 'cose-bilkent') {
+        };        // Add specific options for different layout types
+        if (layoutType === 'cose') {
             layoutOptions = {
                 ...layoutOptions,
                 animate: true,
@@ -860,6 +916,44 @@ class KnowledgeGraphBuilder {    constructor() {
                 idealEdgeLength: idealEdgeLength,
                 edgeElasticity: 100,
                 numIter: 1000
+            };
+        } else if (layoutType === 'cose-bilkent') {
+            layoutOptions = {
+                ...layoutOptions,
+                animate: true,
+                animationDuration: 1000,
+                nodeRepulsion: nodeRepulsion,
+                idealEdgeLength: idealEdgeLength,
+                edgeElasticity: 0.45,
+                numIter: 2500,
+                tile: true,
+                tilingPaddingVertical: 10,
+                tilingPaddingHorizontal: 10
+            };
+        } else if (layoutType === 'fcose') {
+            layoutOptions = {
+                ...layoutOptions,
+                animate: true,
+                animationDuration: 1000,
+                nodeRepulsion: nodeRepulsion,
+                idealEdgeLength: idealEdgeLength,
+                edgeElasticity: 0.45,
+                numIter: 2500,
+                tile: true,
+                samplingType: true,
+                sampleSize: 25
+            };
+        } else if (layoutType === 'cola') {
+            layoutOptions = {
+                ...layoutOptions,
+                animate: true,
+                animationDuration: 1000,
+                maxSimulationTime: 4000,
+                ungrabifyWhileSimulating: false,
+                nodeSpacing: function(node) { return 10; },
+                edgeLength: idealEdgeLength,
+                edgeSymDiffLength: 10,
+                edgeJaccardLength: 10
             };
         }
         
@@ -892,5 +986,43 @@ class KnowledgeGraphBuilder {    constructor() {
 
 // Initialize the application when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new KnowledgeGraphBuilder();
+    console.log('DOM loaded, checking extension registration...');
+    
+    // Give extensions time to auto-register since cytoscape is now globally available
+    setTimeout(() => {
+        console.log('Testing which layouts are available...');
+        
+        // Test which layouts are actually available by creating a temporary cytoscape instance
+        try {
+            const testCy = cytoscape({
+                elements: [{ data: { id: 'test' } }],
+                headless: true
+            });
+            
+            const layoutsToTest = ['cose', 'cose-bilkent', 'fcose', 'cola'];
+            const availableLayouts = [];
+            
+            layoutsToTest.forEach(layoutName => {
+                try {
+                    const layout = testCy.layout({ name: layoutName });
+                    availableLayouts.push(layoutName);
+                    console.log(`✓ Layout '${layoutName}' is available`);
+                } catch(e) {
+                    console.log(`✗ Layout '${layoutName}' is NOT available:`, e.message);
+                }
+            });
+            
+            testCy.destroy();
+            console.log('Available layouts:', availableLayouts);
+            
+            // Initialize the application
+            new KnowledgeGraphBuilder();
+            
+        } catch(e) {
+            console.warn('Error testing layout availability:', e);
+            // Fallback: initialize anyway
+            new KnowledgeGraphBuilder();
+        }
+        
+    }, 200); // Give extensions time to register
 });

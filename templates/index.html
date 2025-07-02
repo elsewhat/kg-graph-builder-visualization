@@ -3,8 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knowledge Graph Builder Visualization</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">    <script src="{{ url_for('static', filename='js/cytoscape.min.js') }}"></script>
+    <title>Knowledge Graph Builder Visualization</title>    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">    <script src="{{ url_for('static', filename='js/cytoscape.min.js') }}"></script>
+    <script>
+        // Make cytoscape available globally for extensions
+        window.cytoscape = cytoscape;
+    </script>
+    
+    <!-- Load base dependencies first -->
+    <script src="https://unpkg.com/layout-base/layout-base.js"></script>
+    <script src="https://unpkg.com/cose-base/cose-base.js"></script>
+    
+    <!-- Load WebCola for Cola layout -->
+    <script src="https://unpkg.com/webcola@3.4.0/WebCola/cola.min.js"></script>
+    
+    <!-- Load layout extensions - they should auto-register now -->
+    <script src="https://unpkg.com/cytoscape-cose-bilkent@4.1.0/cytoscape-cose-bilkent.js"></script>
+    <script src="https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>
+    <script src="https://unpkg.com/cytoscape-cola@2.5.1/cytoscape-cola.js"></script>    <script>
+        // Simple script to verify extensions are loaded and perform manual registration if needed
+        window.addEventListener('load', function() {
+            console.log('All scripts loaded. Checking extension availability...');
+            
+            // Log what extension variables are available
+            const extensions = ['cytoscapeFcose', 'cytoscapeCoseBilkent', 'cytoscapeCola'];
+            extensions.forEach(ext => {
+                if (window[ext]) {
+                    console.log(`✓ ${ext} available:`, typeof window[ext]);
+                } else {
+                    console.log(`✗ ${ext} not available`);
+                }
+            });
+            
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -48,14 +79,16 @@
                 <div class="layout-controls" id="layout-controls" style="display: none;">
                     <h3>Layout Controls</h3>
                     <div class="control-group">
-                        <label for="layout-type">Layout Type:</label>
-                        <select id="layout-type">
+                        <label for="layout-type">Layout Type:</label>                        <select id="layout-type">
                             <option value="cose">COSE (Compound Spring Embedder)</option>
+                            <option value="cose-bilkent">COSE Bilkent (Enhanced)</option>
+                            <option value="fcose">fCoSE (Fast Compound Spring Embedder)</option>
+                            <option value="cola">Cola (Constraint-based Layout)</option>
                             <option value="grid">Grid</option>
                             <option value="circle">Circle</option>
                             <option value="concentric">Concentric</option>
                             <option value="breadthfirst">Breadth-first</option>
-                            <option value="cose-bilkent">COSE Bilkent</option>
+                            <option value="random">Random</option>
                         </select>
                     </div>
                     <div class="control-group">
