@@ -36,8 +36,7 @@ class KnowledgeGraphBuilder {
         this.cy = cytoscape({
             container: document.getElementById('cy'),
             
-            style: [
-                {
+            style: [                {
                     selector: 'node',
                     style: {
                         'background-color': 'data(color)',
@@ -49,8 +48,8 @@ class KnowledgeGraphBuilder {
                         'text-outline-color': '#333',
                         'font-size': '12px',
                         'font-weight': 'bold',
-                        'width': 'mapData(degree, 0, 10, 30, 80)',
-                        'height': 'mapData(degree, 0, 10, 30, 80)',
+                        'width': '60px',
+                        'height': '60px',
                         'border-width': 3,
                         'border-color': '#333',
                         'transition-property': 'background-color, border-color, width, height',
@@ -127,13 +126,12 @@ class KnowledgeGraphBuilder {
                         'target-arrow-color': '#ff6b6b',
                         'border-color': '#ff6b6b'
                     }
-                },
-                {
+                },                {
                     selector: '.new-element',
                     style: {
                         'opacity': 0,
-                        'width': 10,
-                        'height': 10
+                        'width': '10px',
+                        'height': '10px'
                     }
                 }
             ],
@@ -158,15 +156,34 @@ class KnowledgeGraphBuilder {
                 coolingFactor: 0.95,
                 minTemp: 1.0
             },
-            
-            elements: []
+              elements: []
         });
         
-        // Add hover effects
+        console.log('Cytoscape initialized:', this.cy.container().length > 0);
+          // Ensure proper sizing
+        this.cy.resize();
+        this.cy.fit();
+        
+        // Test adding a simple node for debugging
+        this.cy.add({
+            group: 'nodes',
+            data: { id: 'test', label: 'Test Node', color: '#3b82f6' },
+            position: { x: 100, y: 100 }
+        });
+        console.log('Test node added, total elements:', this.cy.elements().length);
+          // Add hover effects
         this.cy.on('mouseover', 'node', (evt) => {
             const node = evt.target;
+            const currentWidth = node.style('width');
+            const currentHeight = node.style('height');
+            const newWidth = parseInt(currentWidth) + 10;
+            const newHeight = parseInt(currentHeight) + 10;
+            
             node.animate({
-                style: { 'width': '+=10', 'height': '+=10' }
+                style: { 
+                    'width': newWidth + 'px', 
+                    'height': newHeight + 'px' 
+                }
             }, {
                 duration: 200
             });
@@ -174,8 +191,14 @@ class KnowledgeGraphBuilder {
         
         this.cy.on('mouseout', 'node', (evt) => {
             const node = evt.target;
+            const nodeType = node.data('type');
+            const originalSize = this.getNodeSize(nodeType);
+            
             node.animate({
-                style: { 'width': '-=10', 'height': '-=10' }
+                style: { 
+                    'width': originalSize + 'px', 
+                    'height': originalSize + 'px' 
+                }
             }, {
                 duration: 200
             });
@@ -325,19 +348,19 @@ class KnowledgeGraphBuilder {
             data: nodeData,
             classes: 'new-element'
         });
-        
-        const newNode = this.cy.getElementById(item.data.id);
+          const newNode = this.cy.getElementById(item.data.id);
+        console.log('Adding node:', item.data.id, 'Found node:', newNode.length > 0);
         
         // Animate the node in
         newNode.animate({
             style: {
                 'opacity': 1,
-                'width': this.getNodeSize(item.data.type),
-                'height': this.getNodeSize(item.data.type)
+                'width': this.getNodeSize(item.data.type) + 'px',
+                'height': this.getNodeSize(item.data.type) + 'px'
             }
         }, {
             duration: 500,
-            easing: 'ease-out-bounce'
+            easing: 'ease-out'
         });
         
         // Update layout
