@@ -1,15 +1,19 @@
 # Knowledge Graph Builder Visualization
 
-A Flask-based web application that visualizes the step-by-step construction of a knowledge graph from unstructured data using Cytoscape.js.
+**A proof of concept** Flask-based web application that demonstrates the step-by-step construction of a knowledge graph from predefined data using Cytoscape.js.
+
+> **Note**: This is a demonstration prototype designed to showcase knowledge graph visualization concepts. It's been vibe code in a few hours. It uses simulated data and simplified graph construction for educational purposes.
 
 ## Features
 
-- **Real-time Visualization**: Watch as ontology concepts, nodes, and edges are added step by step
-- **Interactive Controls**: Start, pause, reset, and adjust the speed of construction
-- **Animated Graph**: Smooth animations when new elements are added
-- **Ontology Tracking**: See the ontology being developed alongside the graph
-- **Responsive Layout**: Uses Cytoscape fcose layout for optimal node positioning
-- **Modern UI**: Clean, modern interface with statistics and controls
+This proof of concept includes:
+
+- **Basic Visualization**: Simple demonstration of adding ontology concepts, nodes and edges sequentially
+- **Simple Controls**: Basic start, pause, and reset functionality
+- **Step Animation**: Animated progression through predefined graph construction steps
+- **Ontology Display**: Shows sample ontology concepts as they are introduced
+- **Layout**: Uses Cytoscape with various layout algorithms for node positioning
+- **Statistics Tracking**: Real-time display of construction progress (steps, nodes, edges, concepts)
 
 ## Setup
 
@@ -33,9 +37,8 @@ A Flask-based web application that visualizes the step-by-step construction of a
 1. Click **"Start Building"** to begin the knowledge graph construction simulation
 2. Use **"Pause"** to pause the construction at any time
 3. Use **"Reset"** to clear the graph and start over
-4. Adjust the **Speed slider** to control how fast elements are added
-5. Watch the **Statistics panel** to see real-time counts
-6. Observe the **Ontology panel** to see concepts being defined
+4. Watch the **Statistics panel** to see real-time counts of steps, nodes, edges, and concepts
+5. Observe the **Ontology panel** to see concepts being defined during construction
 
 ## Project Structure
 
@@ -56,21 +59,23 @@ kg-graph-builder-visualization/
 
 ## Graph Data
 
-The application simulates building a knowledge graph with:
+This proof of concept demonstrates building a knowledge graph with sample data including:
 
-- **Ontology Concepts**: Person, Organization, Location, Event, and relationships
-- **Entities**: John Smith, Mary Johnson, ACME Corp, Google Inc, New York, San Francisco, Tech Conference 2025
-- **Relationships**: works_at, located_in, attended
+- **Sample Ontology Concepts**: Person, Organization, Location, Event, and basic relationships
+- **Example Entities**: John Smith, Mary Johnson, ACME Corp, Google Inc, New York, San Francisco, Tech Conference 2025
+- **Simple Relationships**: works_at, located_in, attended
+
+> **Note**: The data is hardcoded for demonstration purposes and does not represent real knowledge extraction from unstructured sources.
 
 ## Customization
 
-You can modify the graph data in `app.py` by editing the `GRAPH_DATA` dictionary to include your own:
+You can experiment with different graph data by modifying the `GRAPH_DATA` dictionary in `app.py`. This allows you to:
 
-- Ontology concepts and descriptions
-- Nodes with different types and labels  
-- Edges representing relationships
+- Add different ontology concepts and descriptions
+- Include nodes with various types and labels  
+- Define edges representing different relationships
 
-The visualization automatically assigns colors and shapes based on node types:
+The visualization assigns basic colors and shapes based on node types:
 - **Person**: Blue circles
 - **Organization**: Green rectangles  
 - **Location**: Orange diamonds
