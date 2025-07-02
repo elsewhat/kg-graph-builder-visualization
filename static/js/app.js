@@ -154,24 +154,16 @@ class KnowledgeGraphBuilder {
                 numIter: 1000,
                 initialTemp: 200,
                 coolingFactor: 0.95,
-                minTemp: 1.0
-            },
-              elements: []
+                minTemp: 1.0            },
+            
+            elements: []
         });
         
-        console.log('Cytoscape initialized:', this.cy.container().length > 0);
-          // Ensure proper sizing
+        // Ensure proper sizing
         this.cy.resize();
         this.cy.fit();
         
-        // Test adding a simple node for debugging
-        this.cy.add({
-            group: 'nodes',
-            data: { id: 'test', label: 'Test Node', color: '#3b82f6' },
-            position: { x: 100, y: 100 }
-        });
-        console.log('Test node added, total elements:', this.cy.elements().length);
-          // Add hover effects
+        // Add hover effects
         this.cy.on('mouseover', 'node', (evt) => {
             const node = evt.target;
             const currentWidth = node.style('width');
@@ -347,9 +339,7 @@ class KnowledgeGraphBuilder {
             group: 'nodes',
             data: nodeData,
             classes: 'new-element'
-        });
-          const newNode = this.cy.getElementById(item.data.id);
-        console.log('Adding node:', item.data.id, 'Found node:', newNode.length > 0);
+        });        const newNode = this.cy.getElementById(item.data.id);
         
         // Animate the node in
         newNode.animate({
