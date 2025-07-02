@@ -68,6 +68,10 @@ header p {
 .ontology-panel {
     flex: 1;
     min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .ontology-panel h3 {
@@ -82,6 +86,34 @@ header p {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Custom scrollbar styles for ontology panel */
+#ontology-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#ontology-list::-webkit-scrollbar-track {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+#ontology-list::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 3px;
+}
+
+#ontology-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Firefox scrollbar */
+#ontology-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary-color) var(--border);
 }
 
 .ontology-item {
