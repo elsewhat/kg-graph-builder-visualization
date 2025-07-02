@@ -127,11 +127,18 @@ class KnowledgeGraphBuilder {
                         'border-color': '#ff6b6b'
                     }
                 },                {
-                    selector: '.new-element',
+                    selector: '.new-node',
                     style: {
                         'opacity': 0,
                         'width': '10px',
                         'height': '10px'
+                    }
+                },
+                {
+                    selector: '.new-edge',
+                    style: {
+                        'opacity': 0,
+                        'width': '1px'
                     }
                 }
             ],
@@ -333,13 +340,12 @@ class KnowledgeGraphBuilder {
             ...item.data,
             color: this.getNodeColor(item.data.type)
         };
-        
-        // Add node with animation class
+          // Add node with animation class
         this.cy.add({
             group: 'nodes',
             data: nodeData,
-            classes: 'new-element'
-        });        const newNode = this.cy.getElementById(item.data.id);
+            classes: 'new-node'
+        });const newNode = this.cy.getElementById(item.data.id);
         
         // Animate the node in
         newNode.animate({
@@ -361,12 +367,11 @@ class KnowledgeGraphBuilder {
     
     addEdge(item) {
         this.elements.edges.push(item);
-        
-        // Add edge
+          // Add edge
         this.cy.add({
             group: 'edges',
             data: item.data,
-            classes: 'new-element'
+            classes: 'new-edge'
         });
         
         const newEdge = this.cy.getElementById(item.data.id);
