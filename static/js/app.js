@@ -269,43 +269,9 @@ class KnowledgeGraphBuilder {
             
             elements: []
         });
-        
-        // Ensure proper sizing
+          // Ensure proper sizing
         this.cy.resize();
         this.cy.fit();
-        
-        // Add hover effects
-        this.cy.on('mouseover', 'node', (evt) => {
-            const node = evt.target;
-            const currentWidth = node.style('width');
-            const currentHeight = node.style('height');
-            const newWidth = parseInt(currentWidth) + 10;
-            const newHeight = parseInt(currentHeight) + 10;
-            
-            node.animate({
-                style: { 
-                    'width': newWidth + 'px', 
-                    'height': newHeight + 'px' 
-                }
-            }, {
-                duration: 200
-            });
-        });
-        
-        this.cy.on('mouseout', 'node', (evt) => {
-            const node = evt.target;
-            const nodeType = node.data('type');
-            const originalSize = this.getNodeSize(nodeType);
-            
-            node.animate({
-                style: { 
-                    'width': originalSize + 'px', 
-                    'height': originalSize + 'px' 
-                }
-            }, {
-                duration: 200
-            });
-        });
     }
     
     setupEventListeners() {
