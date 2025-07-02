@@ -451,45 +451,121 @@ class KnowledgeGraphBuilder {
         
         document.getElementById('current-action').textContent = `Added ontology concept: ${item.concept}`;
     }
-    
-    addNode(item) {
+      addNode(item) {
         this.elements.nodes.push(item);
         
-        const nodeData = {
-            ...item.data,
-            color: this.getNodeColor(item.data.type)
-        };
-          // Add node with animation class
-        this.cy.add({
-            group: 'nodes',
-            data: nodeData,
-            classes: 'new-node'
-        });const newNode = this.cy.getElementById(item.data.id);
-        
-        // Animate the node in
-        newNode.animate({
-            style: {
-                'opacity': 1,
-                'width': this.getNodeSize(item.data.type) + 'px',
-                'height': this.getNodeSize(item.data.type) + 'px'
+        // Check if a node with this ID already exists
+        const existingNode = this.cy.getElementById(item.data.id);
+        if (existingNode.length > 0) {
+            // Node already exists, modify the label to include the type in parentheses
+            const existingLabel = existingNode.data('label');
+            const existingType = existingNode.data('type');
+            
+            // Update existing node label to include type
+            if (!existingLabel.includes('(')) {
+                existingNode.data('label', `${existingLabel} (${existingType})`);
             }
-        }, {
-            duration: 500,
-            easing: 'ease-out'
-        });
+            
+            // Create new unique ID for the current item
+            const newId = `${item.data.id}_${item.data.type.toLowerCase()}`;
+            const newLabel = `${item.data.label} (${item.data.type})`;
+            
+            const nodeData = {
+                ...item.data,
+                id: newId,
+                label: newLabel,
+                color: this.getNodeColor(item.data.type)
+            };
+            
+            // Add node with animation class and new ID
+            this.cy.add({
+                group: 'nodes',
+                data: nodeData,
+                classes: 'new-node'
+            });
+            
+            const newNode = this.cy.getElementById(newId);
+            
+            // Animate the node in
+            newNode.animate({
+                style: {
+                    'opacity': 1,
+                    'width': this.getNodeSize(item.data.type) + 'px',
+                    'height': this.getNodeSize(item.data.type) + 'px'
+                }
+            }, {
+                duration: 500,
+                easing: 'ease-out'
+            });
+            
+            document.getElementById('current-action').textContent = `Added ${item.data.type}: ${newLabel} (resolved duplicate)`;
+        } else {
+            // No duplicate, proceed normally
+            const nodeData = {
+                ...item.data,
+                color: this.getNodeColor(item.data.type)
+            };
+            
+            // Add node with animation class
+            this.cy.add({
+                group: 'nodes',
+                data: nodeData,
+                classes: 'new-node'
+            });
+            
+            const newNode = this.cy.getElementById(item.data.id);
+            
+            // Animate the node in
+            newNode.animate({
+                style: {
+                    'opacity': 1,
+                    'width': this.getNodeSize(item.data.type) + 'px',
+                    'height': this.getNodeSize(item.data.type) + 'px'
+                }
+            }, {
+                duration: 500,
+                easing: 'ease-out'
+            });
+              document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;
+        }
         
         // Update layout
         this.updateLayout();
-        
-        document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;
     }
-    
-    addEdge(item) {
+      addEdge(item) {
         this.elements.edges.push(item);
-          // Add edge
+        
+        // Check if the source and target nodes exist, if not try with modified IDs
+        let sourceId = item.data.source;
+        let targetId = item.data.target;
+        
+        // If source node doesn't exist, try to find it with type suffix
+        if (this.cy.getElementById(sourceId).length === 0) {
+            const possibleIds = this.cy.nodes().map(node => node.id()).filter(id => id.startsWith(sourceId + '_'));
+            if (possibleIds.length > 0) {
+                sourceId = possibleIds[0]; // Use the first match
+            }
+        }
+        
+        // If target node doesn't exist, try to find it with type suffix
+        if (this.cy.getElementById(targetId).length === 0) {
+            const possibleIds = this.cy.nodes().map(node => node.id()).filter(id => id.startsWith(targetId + '_'));
+            if (possibleIds.length > 0) {
+                targetId = possibleIds[0]; // Use the first match
+            }
+        }
+        
+        // Create the edge with potentially modified IDs
+        const edgeData = {
+            ...item.data,
+            source: sourceId,
+            target: targetId
+        };
+        
+        // Add edge
         this.cy.add({
             group: 'edges',
-            data: item.data,
+            data: edgeData,
             classes: 'new-edge'
         });
         
@@ -506,8 +582,8 @@ class KnowledgeGraphBuilder {
         });
         
         // Highlight connected nodes briefly
-        const sourceNode = this.cy.getElementById(item.data.source);
-        const targetNode = this.cy.getElementById(item.data.target);
+        const sourceNode = this.cy.getElementById(sourceId);
+        const targetNode = this.cy.getElementById(targetId);
         
         sourceNode.addClass('highlighted');
         targetNode.addClass('highlighted');
