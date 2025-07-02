@@ -32,13 +32,7 @@ class KnowledgeGraphBuilder {
             console.error('Failed to load graph data:', error);
         }
     }
-    
-    initializeCytoscape() {
-        // Register the fcose layout
-        if (typeof cytoscape !== 'undefined' && typeof cytoscapeFcose !== 'undefined') {
-            cytoscape.use(cytoscapeFcose);
-        }
-        
+      initializeCytoscape() {
         this.cy = cytoscape({
             container: document.getElementById('cy'),
             
@@ -143,28 +137,26 @@ class KnowledgeGraphBuilder {
                     }
                 }
             ],
-            
-            layout: {
-                name: 'fcose',
-                quality: 'default',
-                randomize: false,
+              layout: {
+                name: 'cose',
                 animate: true,
                 animationDuration: 1000,
                 animationEasing: 'ease-out',
                 fit: true,
                 padding: 50,
                 nodeDimensionsIncludeLabels: true,
-                uniformNodeDimensions: false,
-                packComponents: true,
-                nodeRepulsion: node => 4500,
-                idealEdgeLength: edge => 100,
-                edgeElasticity: edge => 0.1,
-                nestingFactor: 0.1,
-                gravity: 0.25,
-                numIter: 2500,
-                tile: true,
-                tilingPaddingVertical: 10,
-                tilingPaddingHorizontal: 10
+                randomize: false,
+                componentSpacing: 100,
+                nodeRepulsion: 400000,
+                nodeOverlap: 10,
+                idealEdgeLength: 100,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
             },
             
             elements: []
@@ -413,20 +405,19 @@ class KnowledgeGraphBuilder {
         };
         return sizes[type] || 50;
     }
-    
-    updateLayout() {
+      updateLayout() {
         // Only run layout if we have multiple elements
         if (this.cy.elements().length > 1) {
             const layout = this.cy.layout({
-                name: 'fcose',
+                name: 'cose',
                 animate: true,
                 animationDuration: 800,
                 fit: true,
                 padding: 50,
                 randomize: false,
-                nodeRepulsion: () => 4500,
-                idealEdgeLength: () => 100,
-                edgeElasticity: () => 0.1
+                nodeRepulsion: 400000,
+                idealEdgeLength: 100,
+                edgeElasticity: 100
             });
             layout.run();
         }
