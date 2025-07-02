@@ -273,14 +273,13 @@ class KnowledgeGraphBuilder {    constructor() {
           // Ensure proper sizing
         this.cy.resize();
         this.cy.fit();
-    }
-      setupEventListeners() {
+    }    setupEventListeners() {
         document.getElementById('start-btn').addEventListener('click', () => this.start());
         document.getElementById('pause-btn').addEventListener('click', () => this.pause());
         document.getElementById('reset-btn').addEventListener('click', () => this.reset());
+        document.getElementById('apply-layout-btn').addEventListener('click', () => this.applyCustomLayout());
     }
-    
-    start() {
+      start() {
         if (this.isPaused) {
             this.isPaused = false;
             this.isRunning = true;
@@ -290,10 +289,12 @@ class KnowledgeGraphBuilder {    constructor() {
             this.buildGraph();
         }
         
+        // Hide layout controls when running
+        this.hideLayoutControls();
+        
         document.getElementById('start-btn').disabled = true;
         document.getElementById('pause-btn').disabled = false;
-    }
-      pause() {
+    }pause() {
         this.isPaused = true;
         this.isRunning = false;
         if (this.timeoutId) {
@@ -303,11 +304,13 @@ class KnowledgeGraphBuilder {    constructor() {
         // Update layout when pausing to clean up current state
         this.updateLayout();
         
+        // Show layout controls when paused
+        this.showLayoutControls();
+        
         document.getElementById('start-btn').disabled = false;
         document.getElementById('pause-btn').disabled = true;
         document.getElementById('current-action').textContent = 'Paused - Click Start to continue';
-    }
-      reset() {
+    }    reset() {
         this.isRunning = false;
         this.isPaused = false;
         this.currentStep = 0;
@@ -331,6 +334,9 @@ class KnowledgeGraphBuilder {    constructor() {
         
         // Reset hidden concepts
         this.hiddenConcepts.clear();
+        
+        // Hide layout controls on reset
+        this.hideLayoutControls();
         
         // Reset UI
         document.getElementById('start-btn').disabled = false;
@@ -781,18 +787,100 @@ class KnowledgeGraphBuilder {    constructor() {
             this.cy.zoom(zoomLevel);
         }, 100);
     }
-    
-    updateStats() {
+      updateStats() {
         document.getElementById('current-step').textContent = this.currentStep;
         document.getElementById('node-count').textContent = this.elements.nodes.length;
         document.getElementById('edge-count').textContent = this.elements.edges.length;
         document.getElementById('concept-count').textContent = this.elements.ontology.length;
     }
-      finish() {
+    
+    showLayoutControls() {
+        const controlsDiv = document.getElementById('layout-controls');
+        controlsDiv.style.display = 'block';
+        
+        // Update controls with current layout values
+        this.updateLayoutControlValues();
+    }
+    
+    hideLayoutControls() {
+        const controlsDiv = document.getElementById('layout-controls');
+        controlsDiv.style.display = 'none';
+    }
+    
+    updateLayoutControlValues() {
+        const nodeCount = this.cy.nodes().length;
+        
+        // Set default values based on current graph size
+        let idealEdgeLength = 150;
+        let nodeRepulsion = 400000;
+        let padding = 50;
+        
+        if (nodeCount < 50) {
+            idealEdgeLength = 200;
+            nodeRepulsion = 800000;
+            padding = Math.max(50, 150 - nodeCount / 10);
+        } else if (nodeCount < 200) {
+            idealEdgeLength = 150;
+            nodeRepulsion = 400000;
+            padding = Math.max(50, 150 - nodeCount / 10);
+        } else {
+            idealEdgeLength = 120;
+            nodeRepulsion = 200000;
+            padding = Math.max(50, 150 - nodeCount / 10);
+        }
+        
+        document.getElementById('layout-type').value = 'cose';
+        document.getElementById('ideal-edge-length').value = idealEdgeLength;
+        document.getElementById('node-repulsion').value = nodeRepulsion;
+        document.getElementById('padding').value = padding;
+    }
+    
+    applyCustomLayout() {
+        const layoutType = document.getElementById('layout-type').value;
+        const idealEdgeLength = parseInt(document.getElementById('ideal-edge-length').value);
+        const nodeRepulsion = parseInt(document.getElementById('node-repulsion').value);
+        const padding = parseInt(document.getElementById('padding').value);
+        
+        document.getElementById('current-action').textContent = `Applying ${layoutType} layout...`;
+        
+        let layoutOptions = {
+            name: layoutType,
+            fit: false,
+            padding: padding,
+            randomize: false
+        };
+        
+        // Add specific options for COSE layouts
+        if (layoutType === 'cose' || layoutType === 'cose-bilkent') {
+            layoutOptions = {
+                ...layoutOptions,
+                animate: true,
+                animationDuration: 1000,
+                nodeRepulsion: nodeRepulsion,
+                idealEdgeLength: idealEdgeLength,
+                edgeElasticity: 100,
+                numIter: 1000
+            };
+        }
+        
+        // Apply the layout
+        const layout = this.cy.layout(layoutOptions);
+        layout.run();
+        
+        // Update status when layout is complete
+        setTimeout(() => {
+            document.getElementById('current-action').textContent = `Layout applied: ${layoutType}`;
+        }, 1200);
+    }
+    
+    finish() {
         this.isRunning = false;
         document.getElementById('start-btn').disabled = false;
         document.getElementById('pause-btn').disabled = true;
         document.getElementById('current-action').textContent = 'Knowledge graph construction complete!';
+        
+        // Show layout controls when finished
+        this.showLayoutControls();
         
         // Final layout update and fit to show the complete graph
         this.updateLayout();

@@ -39,11 +39,38 @@
                     <div class="stat">
                         <span class="label">Edges:</span>
                         <span id="edge-count">0</span>
-                    </div>
-                    <div class="stat">
+                    </div>                    <div class="stat">
                         <span class="label">Concepts:</span>
                         <span id="concept-count">0</span>
                     </div>
+                </div>
+                
+                <div class="layout-controls" id="layout-controls" style="display: none;">
+                    <h3>Layout Controls</h3>
+                    <div class="control-group">
+                        <label for="layout-type">Layout Type:</label>
+                        <select id="layout-type">
+                            <option value="cose">COSE (Compound Spring Embedder)</option>
+                            <option value="grid">Grid</option>
+                            <option value="circle">Circle</option>
+                            <option value="concentric">Concentric</option>
+                            <option value="breadthfirst">Breadth-first</option>
+                            <option value="cose-bilkent">COSE Bilkent</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="ideal-edge-length">Ideal Edge Length:</label>
+                        <input type="number" id="ideal-edge-length" min="50" max="500" step="10" value="150">
+                    </div>
+                    <div class="control-group">
+                        <label for="node-repulsion">Node Repulsion:</label>
+                        <input type="number" id="node-repulsion" min="10000" max="1000000" step="10000" value="400000">
+                    </div>
+                    <div class="control-group">
+                        <label for="padding">Padding:</label>
+                        <input type="number" id="padding" min="10" max="200" step="10" value="50">
+                    </div>
+                    <button id="apply-layout-btn" class="btn primary">Apply Layout</button>
                 </div>
             </div>
             

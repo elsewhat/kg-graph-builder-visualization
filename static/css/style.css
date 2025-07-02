@@ -65,24 +65,26 @@ header p {
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
+    height: calc(100vh - 200px);
+    overflow: hidden;
 }
 
 .ontology-panel {
     flex: 1;
-    min-height: 200px;
-    max-height: 400px;
-    overflow-y: auto;
+    min-height: 150px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
 .ontology-panel h3 {
-    font-size: 1.2rem;
-    margin-bottom: 15px;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
     color: var(--text-primary);
-    border-bottom: 2px solid var(--border);
+    border-bottom: 2px solid var(--primary-color);
     padding-bottom: 8px;
+    font-weight: 600;
 }
 
 #ontology-list {
@@ -170,7 +172,8 @@ header p {
 .controls {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 .btn {
@@ -231,10 +234,11 @@ header p {
 .stats {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 15px;
+    gap: 8px;
+    padding: 12px;
     background: var(--background);
     border-radius: 8px;
+    flex-shrink: 0;
 }
 
 .stat {
@@ -252,6 +256,66 @@ header p {
     font-weight: 700;
     color: var(--primary-color);
     font-size: 1.1rem;
+}
+
+.layout-controls {
+    padding: 12px;
+    background: var(--background);
+    border-radius: 8px;
+    border: none;
+    margin-top: 0;
+    box-shadow: none;
+    max-width: 100%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.layout-controls h3 {
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+}
+
+.control-group {
+    margin-bottom: 8px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.control-group select,
+.control-group input {
+    width: 100%;
+    max-width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    font-size: 0.85rem;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+#apply-layout-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
 }
 
 .graph-container {
