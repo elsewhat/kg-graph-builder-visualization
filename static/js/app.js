@@ -6,7 +6,7 @@ class KnowledgeGraphBuilder {
         this.isRunning = false;
         this.isPaused = false;
         this.timeoutId = null;
-        this.speed = 1500; // milliseconds
+        this.speed = 50; // milliseconds - much faster for large dataset
         
         this.elements = {
             ontology: [],
@@ -75,12 +75,132 @@ class KnowledgeGraphBuilder {
                         'background-color': '#f59e0b',
                         'shape': 'diamond'
                     }
-                },
-                {
+                },                {
                     selector: 'node[type="Event"]',
                     style: {
                         'background-color': '#ef4444',
                         'shape': 'octagon'
+                    }
+                },
+                {
+                    selector: 'node[type="Country"]',
+                    style: {
+                        'background-color': '#dc2626',
+                        'shape': 'star',
+                        'width': '120px',
+                        'height': '120px'
+                    }
+                },
+                {
+                    selector: 'node[type="City"]',
+                    style: {
+                        'background-color': '#2563eb',
+                        'shape': 'round-rectangle'
+                    }
+                },
+                {
+                    selector: 'node[type="Municipality"]',
+                    style: {
+                        'background-color': '#7c3aed',
+                        'shape': 'round-rectangle'
+                    }
+                },
+                {
+                    selector: 'node[type="County"]',
+                    style: {
+                        'background-color': '#0891b2',
+                        'shape': 'rectangle'
+                    }
+                },
+                {
+                    selector: 'node[type="Politician"]',
+                    style: {
+                        'background-color': '#be123c',
+                        'shape': 'ellipse'
+                    }
+                },
+                {
+                    selector: 'node[type="Artist"]',
+                    style: {
+                        'background-color': '#a21caf',
+                        'shape': 'ellipse'
+                    }
+                },
+                {
+                    selector: 'node[type="Scientist"]',
+                    style: {
+                        'background-color': '#0369a1',
+                        'shape': 'ellipse'
+                    }
+                },
+                {
+                    selector: 'node[type="Athlete"]',
+                    style: {
+                        'background-color': '#15803d',
+                        'shape': 'ellipse'
+                    }
+                },
+                {
+                    selector: 'node[type="Company"]',
+                    style: {
+                        'background-color': '#ca8a04',
+                        'shape': 'rectangle'
+                    }
+                },
+                {
+                    selector: 'node[type="University"]',
+                    style: {
+                        'background-color': '#9333ea',
+                        'shape': 'hexagon'
+                    }
+                },
+                {
+                    selector: 'node[type="Museum"]',
+                    style: {
+                        'background-color': '#c2410c',
+                        'shape': 'pentagon'
+                    }
+                },
+                {
+                    selector: 'node[type="Festival"]',
+                    style: {
+                        'background-color': '#ec4899',
+                        'shape': 'star'
+                    }
+                },
+                {
+                    selector: 'node[type="Treaty"]',
+                    style: {
+                        'background-color': '#6b7280',
+                        'shape': 'diamond'
+                    }
+                },
+                {
+                    selector: 'node[type="Mountain"]',
+                    style: {
+                        'background-color': '#78716c',
+                        'shape': 'triangle'
+                    }
+                },
+                {
+                    selector: 'node[type="Lake"]',
+                    style: {
+                        'background-color': '#0284c7',
+                        'shape': 'ellipse'
+                    }
+                },
+                {
+                    selector: 'node[type="River"]',
+                    style: {
+                        'background-color': '#0891b2',
+                        'shape': 'round-rectangle'
+                    }
+                },
+                {
+                    selector: 'node[type="Island"]',
+                    style: {
+                        'background-color': '#059669',
+                        'shape': 'round-octagon'
                     }
                 },
                 {
@@ -402,39 +522,79 @@ class KnowledgeGraphBuilder {
         
         document.getElementById('current-action').textContent = `Connected ${item.data.source} → ${item.data.target} (${item.data.label})`;
     }
-    
-    getNodeColor(type) {
+      getNodeColor(type) {
         const colors = {
             'Person': '#3b82f6',
             'Organization': '#10b981',
             'Location': '#f59e0b',
-            'Event': '#ef4444'
+            'Event': '#ef4444',
+            'Country': '#dc2626',
+            'City': '#2563eb',
+            'Municipality': '#7c3aed',
+            'County': '#0891b2',
+            'Politician': '#be123c',
+            'Artist': '#a21caf',
+            'Scientist': '#0369a1',
+            'Athlete': '#15803d',
+            'Company': '#ca8a04',
+            'University': '#9333ea',
+            'Museum': '#c2410c',
+            'Festival': '#ec4899',
+            'Treaty': '#6b7280',
+            'Mountain': '#78716c',
+            'Lake': '#0284c7',
+            'River': '#0891b2',
+            'Island': '#059669'
         };
         return colors[type] || '#64748b';
     }
-    
-    getNodeSize(type) {
+      getNodeSize(type) {
         const sizes = {
-            'Person': 60,
-            'Organization': 70,
-            'Location': 65,
-            'Event': 65
+            'Person': 100,
+            'Organization': 100,
+            'Location': 100,
+            'Event': 100,
+            'Country': 120,
+            'City': 100,
+            'Municipality': 90,
+            'County': 110,
+            'Politician': 100,
+            'Artist': 100,
+            'Scientist': 100,
+            'Athlete': 100,
+            'Company': 100,
+            'University': 110,
+            'Museum': 100,
+            'Festival': 100,
+            'Treaty': 100,
+            'Mountain': 100,
+            'Lake': 100,
+            'River': 100,
+            'Island': 100
         };
-        return sizes[type] || 50;
-    }
-      updateLayout() {
-        // Only run layout if we have multiple elements
-        if (this.cy.elements().length > 1) {
+        return sizes[type] || 100;
+    }      updateLayout() {
+        // Only run layout for smaller graphs to avoid performance issues
+        if (this.cy.elements().length > 1 && this.cy.elements().length < 200) {
             const layout = this.cy.layout({
                 name: 'cose',
-                animate: true,
-                animationDuration: 800,
+                animate: false, // Disable animation for performance
                 fit: true,
-                padding: 50,
+                padding: 30,
                 randomize: false,
-                nodeRepulsion: 400000,
-                idealEdgeLength: 100,
-                edgeElasticity: 100
+                nodeRepulsion: 200000,
+                idealEdgeLength: 80,
+                edgeElasticity: 50,
+                numIter: 500 // Reduce iterations for performance
+            });
+            layout.run();
+        } else if (this.cy.elements().length >= 200) {
+            // Use a simpler layout for large graphs
+            const layout = this.cy.layout({
+                name: 'random',
+                animate: false,
+                fit: true,
+                padding: 50
             });
             layout.run();
         }
