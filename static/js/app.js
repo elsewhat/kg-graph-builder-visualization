@@ -1,5 +1,4 @@
-class KnowledgeGraphBuilder {
-    constructor() {
+class KnowledgeGraphBuilder {    constructor() {
         this.cy = null;
         this.graphData = null;
         this.currentStep = 0;
@@ -13,6 +12,8 @@ class KnowledgeGraphBuilder {
             nodes: [],
             edges: []
         };
+        
+        this.hiddenConcepts = new Set(); // Track hidden ontology concepts
         
         this.init();
     }
@@ -306,8 +307,7 @@ class KnowledgeGraphBuilder {
         document.getElementById('pause-btn').disabled = true;
         document.getElementById('current-action').textContent = 'Paused - Click Start to continue';
     }
-    
-    reset() {
+      reset() {
         this.isRunning = false;
         this.isPaused = false;
         this.currentStep = 0;
@@ -328,6 +328,9 @@ class KnowledgeGraphBuilder {
             nodes: [],
             edges: []
         };
+        
+        // Reset hidden concepts
+        this.hiddenConcepts.clear();
         
         // Reset UI
         document.getElementById('start-btn').disabled = false;
@@ -376,17 +379,22 @@ class KnowledgeGraphBuilder {
         
         this.updateStats();
     }
-    
-    addOntologyItem(item) {
+      addOntologyItem(item) {
         this.elements.ontology.push(item);
         
         const ontologyList = document.getElementById('ontology-list');
         const ontologyDiv = document.createElement('div');
         ontologyDiv.className = 'ontology-item';
+        ontologyDiv.dataset.concept = item.concept; // Store concept name for reference
         ontologyDiv.innerHTML = `
             <div class="concept">${item.concept}</div>
             <div class="description">${item.description}</div>
         `;
+        
+        // Add click listener to toggle visibility
+        ontologyDiv.addEventListener('click', () => {
+            this.toggleConceptVisibility(item.concept, ontologyDiv);
+        });
         
         ontologyList.appendChild(ontologyDiv);
         
@@ -394,9 +402,58 @@ class KnowledgeGraphBuilder {
         setTimeout(() => {
             ontologyDiv.classList.add('visible');
         }, 50);
+          document.getElementById('current-action').textContent = `Added ontology concept: ${item.concept}`;
+    }
+
+    toggleConceptVisibility(concept, ontologyDiv) {
+        if (this.hiddenConcepts.has(concept)) {
+            // Show the concept
+            this.hiddenConcepts.delete(concept);
+            ontologyDiv.classList.remove('hidden');
+            this.showConceptInGraph(concept);
+            document.getElementById('current-action').textContent = `Showed concept: ${concept}`;
+        } else {
+            // Hide the concept
+            this.hiddenConcepts.add(concept);
+            ontologyDiv.classList.add('hidden');
+            this.hideConceptInGraph(concept);
+            document.getElementById('current-action').textContent = `Hidden concept: ${concept}`;
+        }
+    }
+
+    hideConceptInGraph(concept) {
+        // Find nodes that belong to this concept type
+        const nodesToHide = this.cy.nodes().filter(node => {
+            const nodeType = node.data('type');
+            return nodeType === concept;
+        });
+
+        // Hide the nodes and their connected edges
+        nodesToHide.style('display', 'none');
         
-        document.getElementById('current-action').textContent = `Added ontology concept: ${item.concept}`;
-    }    addNode(item) {
+        // Hide edges connected to these nodes
+        nodesToHide.connectedEdges().style('display', 'none');
+    }
+
+    showConceptInGraph(concept) {
+        // Find nodes that belong to this concept type
+        const nodesToShow = this.cy.nodes().filter(node => {
+            const nodeType = node.data('type');
+            return nodeType === concept;
+        });
+
+        // Show the nodes
+        nodesToShow.style('display', 'element');
+        
+        // Show edges connected to these nodes (only if both endpoints are visible)
+        nodesToShow.connectedEdges().forEach(edge => {
+            const sourceVisible = edge.source().style('display') !== 'none';
+            const targetVisible = edge.target().style('display') !== 'none';
+            if (sourceVisible && targetVisible) {
+                edge.style('display', 'element');
+            }
+        });
+    }addNode(item) {
         this.elements.nodes.push(item);
         
         // Check if we should animate and update layout (every 100 nodes)
@@ -431,8 +488,12 @@ class KnowledgeGraphBuilder {
                 data: nodeData,
                 classes: 'new-node'
             });
+              const newNode = this.cy.getElementById(newId);
             
-            const newNode = this.cy.getElementById(newId);
+            // Check if this concept type is hidden
+            if (this.hiddenConcepts.has(item.data.type)) {
+                newNode.style('display', 'none');
+            }
             
             // Animate the node in only if we should animate
             if (shouldAnimate) {
@@ -469,8 +530,12 @@ class KnowledgeGraphBuilder {
                 data: nodeData,
                 classes: 'new-node'
             });
+              const newNode = this.cy.getElementById(item.data.id);
             
-            const newNode = this.cy.getElementById(item.data.id);
+            // Check if this concept type is hidden
+            if (this.hiddenConcepts.has(item.data.type)) {
+                newNode.style('display', 'none');
+            }
             
             // Animate the node in only if we should animate
             if (shouldAnimate) {
@@ -554,8 +619,17 @@ class KnowledgeGraphBuilder {
             data: edgeData,
             classes: 'new-edge'
         });
+          const newEdge = this.cy.getElementById(item.data.id);
         
-        const newEdge = this.cy.getElementById(item.data.id);
+        // Check if either endpoint node is hidden
+        const sourceNode = this.cy.getElementById(sourceId);
+        const targetNode = this.cy.getElementById(targetId);
+        const sourceHidden = sourceNode.length > 0 && sourceNode.style('display') === 'none';
+        const targetHidden = targetNode.length > 0 && targetNode.style('display') === 'none';
+        
+        if (sourceHidden || targetHidden) {
+            newEdge.style('display', 'none');
+        }
         
         // Animate the edge in only if we should animate
         if (shouldAnimate) {

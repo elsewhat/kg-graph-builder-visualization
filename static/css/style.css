@@ -127,11 +127,33 @@ header p {
     opacity: 0;
     transform: translateX(-20px);
     transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.ontology-item:hover {
+    background: var(--surface);
+    transform: translateX(0) scale(1.02);
 }
 
 .ontology-item.visible {
     opacity: 1;
     transform: translateX(0);
+}
+
+.ontology-item.hidden {
+    opacity: 0.5;
+    background: var(--border);
+    border-left-color: var(--text-secondary);
+}
+
+.ontology-item.hidden .concept {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+}
+
+.ontology-item.hidden .description {
+    color: var(--text-secondary);
+    font-style: italic;
 }
 
 .ontology-item .concept {
