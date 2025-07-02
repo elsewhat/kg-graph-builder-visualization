@@ -502,14 +502,11 @@ class KnowledgeGraphBuilder {
             
             document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;
         }
-        
-        // Update layout or just adjust zoom based on shouldAnimate
+          // Update layout only when we should animate
         if (shouldAnimate) {
             this.updateLayout();
-        } else {
-            // Just adjust zoom without full layout
-            this.adjustZoom();
         }
+        // No zoom adjustment between layout updates for cleaner experience
     }
       adjustZoom() {
         const nodeCount = this.cy.nodes().length;
