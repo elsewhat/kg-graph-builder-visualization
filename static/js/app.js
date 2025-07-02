@@ -273,17 +273,10 @@ class KnowledgeGraphBuilder {
         this.cy.resize();
         this.cy.fit();
     }
-    
-    setupEventListeners() {
+      setupEventListeners() {
         document.getElementById('start-btn').addEventListener('click', () => this.start());
         document.getElementById('pause-btn').addEventListener('click', () => this.pause());
         document.getElementById('reset-btn').addEventListener('click', () => this.reset());
-        
-        const speedSlider = document.getElementById('speed');
-        speedSlider.addEventListener('input', (e) => {
-            this.speed = parseInt(e.target.value);
-            document.getElementById('speed-value').textContent = (this.speed / 1000).toFixed(1) + 's';
-        });
     }
     
     start() {
