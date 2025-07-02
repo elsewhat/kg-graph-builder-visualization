@@ -333,13 +333,15 @@ class KnowledgeGraphBuilder {
         document.getElementById('start-btn').disabled = true;
         document.getElementById('pause-btn').disabled = false;
     }
-    
-    pause() {
+      pause() {
         this.isPaused = true;
         this.isRunning = false;
         if (this.timeoutId) {
             clearTimeout(this.timeoutId);
         }
+        
+        // Update layout when pausing to clean up current state
+        this.updateLayout();
         
         document.getElementById('start-btn').disabled = false;
         document.getElementById('pause-btn').disabled = true;
@@ -515,9 +517,8 @@ class KnowledgeGraphBuilder {
             
             
               document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;        }
-        
-        // Update layout only every 10th node for performance
-        if (this.elements.nodes.length % 10 === 0) {
+          // Update layout every 100 nodes or just adjust zoom
+        if (this.elements.nodes.length % 100 === 0) {
             this.updateLayout();
         } else {
             // Just adjust zoom without full layout
@@ -598,9 +599,8 @@ class KnowledgeGraphBuilder {
         setTimeout(() => {
             sourceNode.removeClass('highlighted');
             targetNode.removeClass('highlighted');        }, 1000);
-        
-        // Update layout only every 20th edge for performance
-        if (this.elements.edges.length % 20 === 0) {
+          // Update layout every 100 edges for performance
+        if (this.elements.edges.length % 100 === 0) {
             this.updateLayout();
         }
         
@@ -666,9 +666,8 @@ class KnowledgeGraphBuilder {
         if (nodeCount > 100) {
             zoomLevel = Math.max(0.1, 1 - (nodeCount - 100) / 1000);
         }
-        
-        // Adjust padding based on node count
-        const padding = Math.max(20, 100 - nodeCount / 10);
+          // Adjust padding based on node count
+        const padding = Math.max(50, 150 - nodeCount / 10);
         
         // Always use cose layout but adjust parameters based on graph size
         let layoutOptions = {
@@ -677,15 +676,14 @@ class KnowledgeGraphBuilder {
             padding: padding,
             randomize: false
         };
-        
-        if (nodeCount < 50) {
+          if (nodeCount < 50) {
             // Small graph - use full animation and high quality
             layoutOptions = {
                 ...layoutOptions,
                 animate: true,
                 animationDuration: 300,
-                nodeRepulsion: 400000,
-                idealEdgeLength: 120,
+                nodeRepulsion: 800000,
+                idealEdgeLength: 200,
                 edgeElasticity: 100,
                 numIter: 1000
             };
@@ -694,8 +692,8 @@ class KnowledgeGraphBuilder {
             layoutOptions = {
                 ...layoutOptions,
                 animate: false,
-                nodeRepulsion: 200000,
-                idealEdgeLength: 80,
+                nodeRepulsion: 400000,
+                idealEdgeLength: 150,
                 edgeElasticity: 50,
                 numIter: 500
             };
@@ -704,8 +702,8 @@ class KnowledgeGraphBuilder {
             layoutOptions = {
                 ...layoutOptions,
                 animate: false,
-                nodeRepulsion: 100000,
-                idealEdgeLength: 60,
+                nodeRepulsion: 200000,
+                idealEdgeLength: 120,
                 edgeElasticity: 25,
                 numIter: 200
             };
@@ -726,15 +724,17 @@ class KnowledgeGraphBuilder {
         document.getElementById('edge-count').textContent = this.elements.edges.length;
         document.getElementById('concept-count').textContent = this.elements.ontology.length;
     }
-    
-    finish() {
+      finish() {
         this.isRunning = false;
         document.getElementById('start-btn').disabled = false;
         document.getElementById('pause-btn').disabled = true;
         document.getElementById('current-action').textContent = 'Knowledge graph construction complete!';
         
-        // Final layout adjustment
-        this.cy.fit(50);
+        // Final layout update and fit to show the complete graph
+        this.updateLayout();
+        setTimeout(() => {
+            this.cy.fit(50);
+        }, 500);
     }
 }
 
