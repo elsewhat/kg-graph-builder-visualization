@@ -799,9 +799,8 @@ class KnowledgeGraphBuilder {constructor() {
         }
         
         const options = layoutSelect.querySelectorAll('option');
-        
-        // Check which layouts are available by testing if they're registered
-        const availableLayouts = new Set(['preset', 'random', 'grid', 'circle', 'concentric', 'breadthfirst', 'cose']);
+          // Check which layouts are available by testing if they're registered
+        const availableLayouts = new Set(['preset', 'grid', 'circle', 'concentric', 'breadthfirst', 'cose']);
         
         // Check for extended layouts by testing if we can create them
         const extendedLayouts = ['cose-bilkent', 'fcose', 'cola'];
