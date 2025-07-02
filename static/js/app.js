@@ -260,27 +260,12 @@ class KnowledgeGraphBuilder {
                         'width': '1px'
                     }
                 }
-            ],
-              layout: {
-                name: 'cose',
-                animate: true,
-                animationDuration: 1000,
-                animationEasing: 'ease-out',
-                fit: true,
-                padding: 50,
-                nodeDimensionsIncludeLabels: true,
-                randomize: false,
-                componentSpacing: 100,
-                nodeRepulsion: 400000,
-                nodeOverlap: 10,
-                idealEdgeLength: 100,
-                edgeElasticity: 100,
-                nestingFactor: 5,
-                gravity: 80,
-                numIter: 1000,
-                initialTemp: 200,
-                coolingFactor: 0.95,
-                minTemp: 1.0            },
+            ],              layout: {
+                name: 'preset', // Start with preset layout, we'll manage layouts dynamically
+                animate: false,
+                fit: false,
+                positions: {} // Empty positions, nodes will be positioned as they're added
+            },
             
             elements: []
         });
@@ -526,11 +511,30 @@ class KnowledgeGraphBuilder {
                 duration: 500,
                 easing: 'ease-out'
             });
-              document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;
+              document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;        }
+        
+        // Update layout only every 10th node for performance
+        if (this.elements.nodes.length % 10 === 0) {
+            this.updateLayout();
+        } else {
+            // Just adjust zoom without full layout
+            this.adjustZoom();
+        }
+    }
+      adjustZoom() {
+        const nodeCount = this.cy.nodes().length;
+        let zoomLevel = 1;
+        
+        if (nodeCount > 100) {
+            zoomLevel = Math.max(0.1, 1 - (nodeCount - 100) / 1000);
         }
         
-        // Update layout
-        this.updateLayout();
+        // Smoothly adjust zoom without changing the center
+        this.cy.animate({
+            zoom: zoomLevel
+        }, {
+            duration: 200
+        });
     }
       addEdge(item) {
         this.elements.edges.push(item);
@@ -590,13 +594,14 @@ class KnowledgeGraphBuilder {
         
         setTimeout(() => {
             sourceNode.removeClass('highlighted');
-            targetNode.removeClass('highlighted');
-        }, 1000);
+            targetNode.removeClass('highlighted');        }, 1000);
         
-        // Update layout
-        this.updateLayout();
+        // Update layout only every 20th edge for performance
+        if (this.elements.edges.length % 20 === 0) {
+            this.updateLayout();
+        }
         
-        document.getElementById('current-action').textContent = `Connected ${item.data.source} → ${item.data.target} (${item.data.label})`;
+        document.getElementById('current-action').textContent = `Connected ${sourceId} → ${targetId} (${item.data.label})`;
     }
       getNodeColor(type) {
         const colors = {
@@ -650,30 +655,66 @@ class KnowledgeGraphBuilder {
         };
         return sizes[type] || 100;
     }      updateLayout() {
-        // Only run layout for smaller graphs to avoid performance issues
-        if (this.cy.elements().length > 1 && this.cy.elements().length < 200) {
-            const layout = this.cy.layout({
-                name: 'cose',
-                animate: false, // Disable animation for performance
-                fit: true,
-                padding: 30,
-                randomize: false,
+        const nodeCount = this.cy.nodes().length;
+        const edgeCount = this.cy.edges().length;
+        
+        // Calculate appropriate zoom level based on node count
+        let zoomLevel = 1;
+        if (nodeCount > 100) {
+            zoomLevel = Math.max(0.1, 1 - (nodeCount - 100) / 1000);
+        }
+        
+        // Adjust padding based on node count
+        const padding = Math.max(20, 100 - nodeCount / 10);
+        
+        // Always use cose layout but adjust parameters based on graph size
+        let layoutOptions = {
+            name: 'cose',
+            fit: false, // Don't auto-fit to avoid panning
+            padding: padding,
+            randomize: false
+        };
+        
+        if (nodeCount < 50) {
+            // Small graph - use full animation and high quality
+            layoutOptions = {
+                ...layoutOptions,
+                animate: true,
+                animationDuration: 300,
+                nodeRepulsion: 400000,
+                idealEdgeLength: 120,
+                edgeElasticity: 100,
+                numIter: 1000
+            };
+        } else if (nodeCount < 200) {
+            // Medium graph - reduce animation and iterations
+            layoutOptions = {
+                ...layoutOptions,
+                animate: false,
                 nodeRepulsion: 200000,
                 idealEdgeLength: 80,
                 edgeElasticity: 50,
-                numIter: 500 // Reduce iterations for performance
-            });
-            layout.run();
-        } else if (this.cy.elements().length >= 200) {
-            // Use a simpler layout for large graphs
-            const layout = this.cy.layout({
-                name: 'random',
+                numIter: 500
+            };
+        } else {
+            // Large graph - minimal iterations for performance
+            layoutOptions = {
+                ...layoutOptions,
                 animate: false,
-                fit: true,
-                padding: 50
-            });
-            layout.run();
+                nodeRepulsion: 100000,
+                idealEdgeLength: 60,
+                edgeElasticity: 25,
+                numIter: 200
+            };
         }
+        
+        const layout = this.cy.layout(layoutOptions);
+        layout.run();
+        
+        // Apply zoom level gradually without changing center position
+        setTimeout(() => {
+            this.cy.zoom(zoomLevel);
+        }, 100);
     }
     
     updateStats() {
