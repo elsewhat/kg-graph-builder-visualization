@@ -500,6 +500,7 @@ class KnowledgeGraphBuilder {
             
             const newNode = this.cy.getElementById(item.data.id);
             
+            
             // Animate the node in
             newNode.animate({
                 style: {
@@ -508,9 +509,11 @@ class KnowledgeGraphBuilder {
                     'height': this.getNodeSize(item.data.type) + 'px'
                 }
             }, {
-                duration: 500,
+                duration: 100,
                 easing: 'ease-out'
             });
+            
+            
               document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;        }
         
         // Update layout only every 10th node for performance

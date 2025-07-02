@@ -23,11 +23,13 @@ body {
     background-color: var(--background);
     color: var(--text-primary);
     line-height: 1.6;
+    width: 100%;
+    overflow-x: auto;
 }
 
 .container {
-    max-width: 1400px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     padding: 20px;
 }
 
@@ -52,6 +54,7 @@ header p {
     display: flex;
     gap: 20px;
     height: calc(100vh - 200px);
+    width: 100%;
 }
 
 .sidebar {
