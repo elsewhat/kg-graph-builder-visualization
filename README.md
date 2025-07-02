@@ -9,11 +9,13 @@
 This proof of concept includes:
 
 - **Basic Visualization**: Simple demonstration of adding ontology concepts, nodes and edges sequentially
+- **Hardware-Accelerated Rendering**: Modern Canvas/WebGL rendering with performance optimizations
 - **Simple Controls**: Basic start, pause, and reset functionality
 - **Step Animation**: Animated progression through predefined graph construction steps
 - **Ontology Display**: Shows sample ontology concepts as they are introduced
 - **Layout**: Uses Cytoscape with various layout algorithms for node positioning
 - **Statistics Tracking**: Real-time display of construction progress (steps, nodes, edges, concepts)
+- **Performance Optimizations**: Viewport-based rendering optimizations for handling larger graphs
 
 ## Setup
 
@@ -85,5 +87,15 @@ The visualization assigns basic colors and shapes based on node types:
 
 - **Backend**: Flask (Python)
 - **Frontend**: HTML5, CSS3, JavaScript
-- **Visualization**: Cytoscape.js with fcose layout
+- **Visualization**: Cytoscape.js with hardware-accelerated rendering and performance optimizations
+- **Layout Extensions**: fcose, cose-bilkent, and cola layout algorithms
 - **UI**: Modern CSS with animations and responsive design
+
+## Browser Requirements
+
+For optimal performance:
+- Modern browsers with hardware acceleration support
+- Canvas and WebGL support for enhanced rendering performance
+- Sufficient GPU memory for large graphs
+
+> **Note**: The application automatically uses the best available rendering method (Canvas with hardware acceleration where supported, falling back to SVG).

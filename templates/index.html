@@ -15,27 +15,11 @@
     
     <!-- Load WebCola for Cola layout -->
     <script src="https://unpkg.com/webcola@3.4.0/WebCola/cola.min.js"></script>
-    
-    <!-- Load layout extensions - they should auto-register now -->
+      <!-- Load layout extensions - they should auto-register now -->
     <script src="https://unpkg.com/cytoscape-cose-bilkent@4.1.0/cytoscape-cose-bilkent.js"></script>
-    <script src="https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>
-    <script src="https://unpkg.com/cytoscape-cola@2.5.1/cytoscape-cola.js"></script>    <script>
-        // Simple script to verify extensions are loaded and perform manual registration if needed
-        window.addEventListener('load', function() {
-            console.log('All scripts loaded. Checking extension availability...');
-            
-            // Log what extension variables are available
-            const extensions = ['cytoscapeFcose', 'cytoscapeCoseBilkent', 'cytoscapeCola'];
-            extensions.forEach(ext => {
-                if (window[ext]) {
-                    console.log(`✓ ${ext} available:`, typeof window[ext]);
-                } else {
-                    console.log(`✗ ${ext} not available`);
-                }
-            });
-            
-        });
-    </script>
+    <script src="https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>    <script src="https://unpkg.com/cytoscape-cola@2.5.1/cytoscape-cola.js"></script>
+    
+
 </head>
 <body>
     <div class="container">

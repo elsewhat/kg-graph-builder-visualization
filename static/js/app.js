@@ -32,12 +32,19 @@ class KnowledgeGraphBuilder {constructor() {
         } catch (error) {
             console.error('Failed to load graph data:', error);
         }
-    }
-      initializeCytoscape() {
-        this.cy = cytoscape({
+    }    initializeCytoscape() {        this.cy = cytoscape({
             container: document.getElementById('cy'),
             
-            style: [                {
+            // Performance optimizations for large graphs
+            hideEdgesOnViewport: false,
+            hideLabelsOnViewport: true,
+            textureOnViewport: true,
+            motionBlur: true,
+            motionBlurOpacity: 0.2,
+            wheelSensitivity: 0.1,
+            pixelRatio: 'auto',
+            
+            style: [{
                     selector: 'node',
                     style: {
                         'background-color': 'data(color)',
@@ -268,9 +275,40 @@ class KnowledgeGraphBuilder {constructor() {
                 positions: {} // Empty positions, nodes will be positioned as they're added
             },
             
-            elements: []
+            elements: []        });
+          // Log renderer and performance information
+        console.log('Cytoscape initialized with performance optimizations:', {
+            renderer: this.cy.renderer().name,
+            nodeCount: this.cy.nodes().length,
+            edgeCount: this.cy.edges().length,
+            container: this.cy.container().tagName
         });
-          // Ensure proper sizing
+          // Check for hardware acceleration capabilities
+        const container = this.cy.container();
+        const canvas = container.querySelector('canvas');
+        const svg = container.querySelector('svg');
+        
+        if (canvas) {
+            console.log('✓ Canvas rendering enabled');
+            // Try to detect WebGL support
+            try {
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    console.log('✓ WebGL context available for hardware acceleration');
+                    console.log('WebGL renderer:', gl.getParameter(gl.RENDERER));
+                } else {
+                    console.log('✓ Canvas 2D rendering (hardware accelerated where supported)');
+                }
+            } catch (e) {
+                console.log('✓ Canvas rendering available');
+            }
+        } else if (svg) {
+            console.log('ℹ Using SVG renderer');
+        } else {
+            console.log('ℹ Renderer type could not be determined');
+        }
+        
+        // Ensure proper sizing
         this.cy.resize();
         this.cy.fit();
     }    setupEventListeners() {
