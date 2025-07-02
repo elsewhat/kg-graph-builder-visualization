@@ -42,15 +42,14 @@ class KnowledgeGraphBuilder {
                         'background-color': 'data(color)',
                         'label': 'data(label)',
                         'text-valign': 'center',
-                        'text-halign': 'center',
-                        'color': '#ffffff',
+                        'text-halign': 'center',                        'color': '#ffffff',
                         'text-outline-width': 2,
                         'text-outline-color': '#333',
                         'font-size': '12px',
                         'font-weight': 'bold',
-                        'width': '60px',
-                        'height': '60px',
-                        'border-width': 3,
+                        'width': '100px',
+                        'height': '100px',
+                        'border-width': 4,
                         'border-color': '#333',
                         'transition-property': 'background-color, border-color, width, height',
                         'transition-duration': '0.3s'
@@ -130,8 +129,8 @@ class KnowledgeGraphBuilder {
                     selector: '.new-node',
                     style: {
                         'opacity': 0,
-                        'width': '10px',
-                        'height': '10px'
+                        'width': '20px',
+                        'height': '20px'
                     }
                 },
                 {
