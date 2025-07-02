@@ -437,9 +437,11 @@ class KnowledgeGraphBuilder {
         }, 50);
         
         document.getElementById('current-action').textContent = `Added ontology concept: ${item.concept}`;
-    }
-      addNode(item) {
+    }    addNode(item) {
         this.elements.nodes.push(item);
+        
+        // Check if we should animate and update layout (every 100 nodes)
+        const shouldAnimate = this.elements.nodes.length % 100 === 0;
         
         // Check if a node with this ID already exists
         const existingNode = this.cy.getElementById(item.data.id);
@@ -473,17 +475,26 @@ class KnowledgeGraphBuilder {
             
             const newNode = this.cy.getElementById(newId);
             
-            // Animate the node in
-            newNode.animate({
-                style: {
+            // Animate the node in only if we should animate
+            if (shouldAnimate) {
+                newNode.animate({
+                    style: {
+                        'opacity': 1,
+                        'width': this.getNodeSize(item.data.type) + 'px',
+                        'height': this.getNodeSize(item.data.type) + 'px'
+                    }
+                }, {
+                    duration: 500,
+                    easing: 'ease-out'
+                });
+            } else {
+                // No animation, just set final state immediately
+                newNode.style({
                     'opacity': 1,
                     'width': this.getNodeSize(item.data.type) + 'px',
                     'height': this.getNodeSize(item.data.type) + 'px'
-                }
-            }, {
-                duration: 500,
-                easing: 'ease-out'
-            });
+                });
+            }
             
             document.getElementById('current-action').textContent = `Added ${item.data.type}: ${newLabel} (resolved duplicate)`;
         } else {
@@ -502,23 +513,32 @@ class KnowledgeGraphBuilder {
             
             const newNode = this.cy.getElementById(item.data.id);
             
-            
-            // Animate the node in
-            newNode.animate({
-                style: {
+            // Animate the node in only if we should animate
+            if (shouldAnimate) {
+                newNode.animate({
+                    style: {
+                        'opacity': 1,
+                        'width': this.getNodeSize(item.data.type) + 'px',
+                        'height': this.getNodeSize(item.data.type) + 'px'
+                    }
+                }, {
+                    duration: 100,
+                    easing: 'ease-out'
+                });
+            } else {
+                // No animation, just set final state immediately
+                newNode.style({
                     'opacity': 1,
                     'width': this.getNodeSize(item.data.type) + 'px',
                     'height': this.getNodeSize(item.data.type) + 'px'
-                }
-            }, {
-                duration: 100,
-                easing: 'ease-out'
-            });
+                });
+            }
             
-            
-              document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;        }
-          // Update layout every 100 nodes or just adjust zoom
-        if (this.elements.nodes.length % 100 === 0) {
+            document.getElementById('current-action').textContent = `Added ${item.data.type}: ${item.data.label}`;
+        }
+        
+        // Update layout or just adjust zoom based on shouldAnimate
+        if (shouldAnimate) {
             this.updateLayout();
         } else {
             // Just adjust zoom without full layout
@@ -539,9 +559,11 @@ class KnowledgeGraphBuilder {
         }, {
             duration: 200
         });
-    }
-      addEdge(item) {
+    }    addEdge(item) {
         this.elements.edges.push(item);
+        
+        // Check if we should animate and update layout (every 100 edges)
+        const shouldAnimate = this.elements.edges.length % 100 === 0;
         
         // Check if the source and target nodes exist, if not try with modified IDs
         let sourceId = item.data.source;
@@ -579,28 +601,40 @@ class KnowledgeGraphBuilder {
         
         const newEdge = this.cy.getElementById(item.data.id);
         
-        // Animate the edge in
-        newEdge.animate({
-            style: {
+        // Animate the edge in only if we should animate
+        if (shouldAnimate) {
+            newEdge.animate({
+                style: {
+                    'opacity': 1,
+                    'width': 3
+                }
+            }, {
+                duration: 300
+            });
+        } else {
+            // No animation, just set final state immediately
+            newEdge.style({
                 'opacity': 1,
                 'width': 3
-            }
-        }, {
-            duration: 300
-        });
+            });
+        }
         
-        // Highlight connected nodes briefly
-        const sourceNode = this.cy.getElementById(sourceId);
-        const targetNode = this.cy.getElementById(targetId);
+        // Highlight connected nodes briefly only when we should animate
+        if (shouldAnimate) {
+            const sourceNode = this.cy.getElementById(sourceId);
+            const targetNode = this.cy.getElementById(targetId);
+            
+            sourceNode.addClass('highlighted');
+            targetNode.addClass('highlighted');
+            
+            setTimeout(() => {
+                sourceNode.removeClass('highlighted');
+                targetNode.removeClass('highlighted');
+            }, 1000);
+        }
         
-        sourceNode.addClass('highlighted');
-        targetNode.addClass('highlighted');
-        
-        setTimeout(() => {
-            sourceNode.removeClass('highlighted');
-            targetNode.removeClass('highlighted');        }, 1000);
-          // Update layout every 100 edges for performance
-        if (this.elements.edges.length % 100 === 0) {
+        // Update layout only when we should animate
+        if (shouldAnimate) {
             this.updateLayout();
         }
         
